@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRPJ/CSLL — Lucro Presumido | SuporteADV</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d0d0d; color: #e0e0e0; padding: 24px 16px; }
+  .container { max-width: 750px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid #222; }
+  h1 { font-size: 1.5rem; color: #008080; margin-bottom: 6px; }
+  .subtitle { font-size: 0.88rem; color: #888; line-height: 1.5; }
+  .brand { font-size: 0.78rem; margin-top: 8px; color: #555; }
+  .brand span.s { color: #8B00FF; font-weight: 700; }
+  .brand span.a { color: #008080; font-weight: 700; }
+
+  .card { background: #111; border-radius: 10px; border: 1px solid #222; border-left: 3px solid #8B00FF; padding: 20px 22px; margin-bottom: 14px; transition: border-left-color 0.2s; }
+  .card:hover { border-left-color: #008080; }
+  .card-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #008080; font-weight: 700; margin-bottom: 16px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  @media (max-width: 520px) { .form-grid { grid-template-columns: 1fr; } }
+  .field.full { grid-column: 1 / -1; }
+
+  .field label { display: block; font-size: 0.78rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .field input, .field select {
+    width: 100%; padding: 9px 11px; border: 1.5px solid #333; border-radius: 6px;
+    font-size: 0.95rem; color: #fff; background: #1a1a1a; transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: #008080; box-shadow: 0 0 0 2px rgba(0,128,128,0.2); }
+  .field select option { background: #1a1a1a; }
+
+  .info-box { background: #0d1a1a; border: 1px solid #1a3a3a; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; font-size: 0.82rem; color: #666; line-height: 1.6; }
+  .info-box b { color: #008080; }
+
+  button.calcular { background: #008080; color: #fff; border: none; padding: 10px 26px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.07em; cursor: pointer; transition: background 0.18s; text-transform: uppercase; }
+  button.calcular:hover { background: #006666; box-shadow: 0 0 10px rgba(0,128,128,0.4); }
+
+  /* Resultado */
+  .resultado { background: #0a1a0a; border: 1px solid #1a4a1a; border-radius: 10px; padding: 20px 22px; margin-top: 14px; display: none; }
+  .resultado.visible { display: block; }
+  .resultado-titulo { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #008080; font-weight: 700; margin-bottom: 16px; }
+
+  .res-principal { text-align: center; margin-bottom: 20px; }
+  .res-principal label { display: block; font-size: 0.72rem; color: #555; text-transform: uppercase; margin-bottom: 6px; }
+  .res-principal .v { font-size: 1.8rem; font-weight: 700; color: #00ff00; font-family: 'Courier New', monospace; }
+  .res-principal .sub { font-size: 0.82rem; color: #555; margin-top: 4px; }
+
+  /* Cards IRPJ / CSLL */
+  .tributos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .trib-card { background: #111; border-radius: 8px; padding: 16px; border: 1px solid #1a1a1a; }
+  .trib-card.irpj { border-top: 3px solid #008080; }
+  .trib-card.csll { border-top: 3px solid #8B00FF; }
+  .trib-card .tc-titulo { font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; }
+  .trib-card.irpj .tc-titulo { color: #008080; }
+  .trib-card.csll .tc-titulo { color: #8B00FF; }
+  .trib-card .tc-item { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 5px; }
+  .trib-card .tc-item span:first-child { color: #555; }
+  .trib-card .tc-item span:last-child { color: #ccc; font-family: 'Courier New', monospace; font-weight: 700; }
+  .trib-card .tc-total { display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid #222; }
+  .trib-card .tc-total span:first-child { font-size: 0.82rem; color: #888; font-weight: 700; }
+  .trib-card.irpj .tc-total span:last-child { color: #008080; font-family: 'Courier New', monospace; font-weight: 700; font-size: 1rem; }
+  .trib-card.csll .tc-total span:last-child { color: #8B00FF; font-family: 'Courier New', monospace; font-weight: 700; font-size: 1rem; }
+
+  .res-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 520px) { .res-grid { grid-template-columns: 1fr 1fr; } }
+  .res-item label { display: block; font-size: 0.72rem; color: #555; text-transform: uppercase; margin-bottom: 4px; }
+  .res-item .valor { font-size: 1rem; font-weight: 700; color: #ccc; font-family: 'Courier New', monospace; }
+  .res-item .valor.teal { color: #008080; }
+  .res-item .valor.sec { color: #555; font-size: 0.9rem; }
+
+  .divider { border: none; border-top: 1px solid #1a3a1a; margin: 14px 0; }
+
+  .comp-lista { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .comp-item { display: flex; justify-content: space-between; padding: 10px 14px; background: #111; border-radius: 8px; border-left: 3px solid #333; }
+  .comp-item.teal { border-left-color: #008080; }
+  .comp-item.roxo { border-left-color: #8B00FF; }
+  .comp-item.total { background: #0d1a0d; border-left-color: #00ff00; }
+  .comp-item .ci-nome { font-size: 0.85rem; color: #888; }
+  .comp-item .ci-valor { font-size: 0.95rem; font-weight: 700; font-family: 'Courier New', monospace; color: #008080; }
+  .comp-item.total .ci-nome { color: #fff; font-weight: 700; }
+  .comp-item.total .ci-valor { color: #00ff00; font-size: 1.05rem; }
+
+  /* Tabela trimestres */
+  .trim-wrap { margin-top: 14px; overflow-x: auto; }
+  .trim-wrap summary { cursor: pointer; color: #555; font-size: 0.78rem; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 500px; }
+  th { text-align: left; color: #555; padding: 6px 8px; border-bottom: 1px solid #222; font-size: 0.72rem; text-transform: uppercase; }
+  td { color: #999; padding: 6px 8px; border-bottom: 1px solid #1a1a1a; }
+  tr:hover td { background: #151515; }
+  td.dest { color: #00ff00; font-weight: 700; font-family: 'Courier New', monospace; }
+  tr.total-row td { color: #fff; font-weight: 700; background: #0d1a0d; border-top: 1px solid #333; }
+
+  .erro { background: #1a0a0a; border: 1px solid #4a1a1a; border-radius: 8px; padding: 14px 16px; color: #ff6666; font-size: 0.88rem; margin-top: 14px; display: none; }
+  .erro.visible { display: block; }
+  .aviso { font-size: 0.72rem; color: #444; margin-top: 12px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>IRPJ / CSLL — Lucro Presumido</h1>
+    <p class="subtitle">Calcule IRPJ e CSLL pelo regime de Lucro Presumido, com percentuais de presunção por atividade e adicional de IR.</p>
+    <p class="brand"><span class="s">suporte</span><span class="a">ADV</span>.br — Ferramentas para Advogados</p>
+  </div>
+
+  <div class="card">
+    <div class="info-box">
+      <b>Lucro Presumido:</b> Regime optativo para empresas com receita bruta anual até R$ 78 milhões. O lucro tributável é calculado aplicando percentuais de presunção sobre a receita bruta, conforme a atividade. IRPJ = 15% + adicional de 10% sobre parcela que exceder R$ 20.000/mês. CSLL = 9%.
+    </div>
+
+    <div class="card-label">Dados da Empresa</div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>Atividade / Setor</label>
+        <select id="atividade" onchange="atualizarPresuncoes()">
+          <option value="comercio">Comércio / Indústria / Transporte de cargas</option>
+          <option value="servicos_geral">Prestação de serviços em geral</option>
+          <option value="servicos_hosp">Serviços hospitalares / Transporte de passageiros</option>
+          <option value="profissoes">Profissões regulamentadas (advogados, médicos, engenheiros)</option>
+          <option value="financeiras">Instituições financeiras / Factoring</option>
+          <option value="construcao">Construção civil por empreitada</option>
+          <option value="revenda">Revenda de combustíveis</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Receita bruta trimestral (R$)</label>
+        <input type="number" id="receitaTrimestral" placeholder="Ex: 150000" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label>Outras receitas (ganhos de capital etc.) (R$)</label>
+        <input type="number" id="outrasReceitas" value="0" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label>% presunção IRPJ</label>
+        <input type="number" id="presuncaoIRPJ" value="32" step="0.5" min="1.6" max="100">
+      </div>
+      <div class="field">
+        <label>% presunção CSLL</label>
+        <input type="number" id="presuncaoCSLL" value="32" step="0.5" min="12" max="100">
+      </div>
+      <div class="field">
+        <label>Período de apuração</label>
+        <select id="periodo">
+          <option value="trimestral">Trimestral</option>
+          <option value="anual">Anual (estimar 4 trimestres)</option>
+        </select>
+      </div>
+    </div>
+    <button class="calcular" onclick="calcular()">CALCULAR</button>
+  </div>
+
+  <div class="erro" id="erro"></div>
+
+  <div class="resultado" id="resultado">
+    <div class="resultado-titulo" id="res-titulo">IRPJ / CSLL — Lucro Presumido</div>
+
+    <div class="res-principal">
+      <label>💰 Total IRPJ + CSLL (trimestral)</label>
+      <div class="v" id="res-total">—</div>
+      <div class="sub" id="res-sub">—</div>
+    </div>
+
+    <div class="tributos-grid">
+      <div class="trib-card irpj">
+        <div class="tc-titulo">IRPJ</div>
+        <div class="tc-item"><span>Base presumida</span><span id="irpj-base">—</span></div>
+        <div class="tc-item"><span>IRPJ 15%</span><span id="irpj-15">—</span></div>
+        <div class="tc-item"><span>Adicional 10%</span><span id="irpj-adic">—</span></div>
+        <div class="tc-total"><span>Total IRPJ</span><span id="irpj-total">—</span></div>
+      </div>
+      <div class="trib-card csll">
+        <div class="tc-titulo">CSLL</div>
+        <div class="tc-item"><span>Base presumida</span><span id="csll-base">—</span></div>
+        <div class="tc-item"><span>CSLL 9%</span><span id="csll-9">—</span></div>
+        <div class="tc-total"><span>Total CSLL</span><span id="csll-total">—</span></div>
+      </div>
+    </div>
+
+    <div class="res-grid">
+      <div class="res-item"><label>Receita bruta</label><div class="valor teal" id="res-receita">—</div></div>
+      <div class="res-item"><label>Carga tributária</label><div class="valor" id="res-carga">—</div></div>
+      <div class="res-item"><label>Atividade</label><div class="valor sec" id="res-atividade">—</div></div>
+    </div>
+
+    <hr class="divider">
+    <div class="resultado-titulo">Composição</div>
+    <div class="comp-lista" id="comp-lista"></div>
+
+    <details class="trim-wrap">
+      <summary>Ver projeção anual (4 trimestres)</summary>
+      <table>
+        <thead><tr><th>Trimestre</th><th>Receita est.</th><th>Base IRPJ</th><th>IRPJ</th><th>CSLL</th><th>Total</th></tr></thead>
+        <tbody id="tabela-trim"></tbody>
+      </table>
+    </details>
+
+    <p class="aviso">⚠️ O Lucro Presumido é apurado trimestralmente. Além do IRPJ e CSLL, empresas nesse regime também recolhem PIS (0,65%) e COFINS (3%) sobre a receita bruta. O adicional de IRPJ (10%) incide sobre a parcela do lucro presumido que exceder R$ 60.000 por trimestre (R$ 20.000/mês). Consulte sempre um contador.</p>
+  </div>
+
+</div>
+
+<script>
+const presuncoesIRPJ = {
+  comercio: 8, servicos_geral: 32, servicos_hosp: 8, profissoes: 32,
+  financeiras: 38.4, construcao: 8, revenda: 1.6,
+};
+const presuncoesCSLL = {
+  comercio: 12, servicos_geral: 32, servicos_hosp: 12, profissoes: 32,
+  financeiras: 38.4, construcao: 12, revenda: 12,
+};
+const nomesAtividades = {
+  comercio: 'Comércio/Indústria', servicos_geral: 'Serviços gerais', servicos_hosp: 'Serv. hospitalares',
+  profissoes: 'Profissões regulamentadas', financeiras: 'Financeiras/Factoring',
+  construcao: 'Construção civil', revenda: 'Revenda combustíveis',
+};
+
+function atualizarPresuncoes() {
+  const at = document.getElementById('atividade').value;
+  document.getElementById('presuncaoIRPJ').value = presuncoesIRPJ[at];
+  document.getElementById('presuncaoCSLL').value = presuncoesCSLL[at];
+}
+
+function fmtMoeda(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+function fmtPct(v) { return v.toFixed(2).replace('.',',') + '%'; }
+
+function showErro(msg) {
+  document.getElementById('erro').textContent = msg;
+  document.getElementById('erro').classList.add('visible');
+  document.getElementById('resultado').classList.remove('visible');
+}
+function hideErro() { document.getElementById('erro').classList.remove('visible'); }
+
+function calcTributos(receita, outrasReceitas, pctIRPJ, pctCSLL) {
+  const baseIRPJ = receita * pctIRPJ / 100 + outrasReceitas;
+  const baseCSLL = receita * pctCSLL / 100 + outrasReceitas;
+
+  const irpj15 = baseIRPJ * 0.15;
+  // Adicional: 10% sobre o que exceder R$60.000/trimestre
+  const adicional = Math.max(0, baseIRPJ - 60000) * 0.10;
+  const irpjTotal = irpj15 + adicional;
+
+  const csll9 = baseCSLL * 0.09;
+
+  return { baseIRPJ, baseCSLL, irpj15, adicional, irpjTotal, csll9, total: irpjTotal + csll9 };
+}
+
+function calcular() {
+  hideErro();
+  const receita = parseFloat(document.getElementById('receitaTrimestral').value);
+  if (!receita || receita <= 0) return showErro('Informe a receita bruta trimestral.');
+
+  const outrasReceitas = parseFloat(document.getElementById('outrasReceitas').value) || 0;
+  const pctIRPJ = parseFloat(document.getElementById('presuncaoIRPJ').value);
+  const pctCSLL = parseFloat(document.getElementById('presuncaoCSLL').value);
+  const atividade = document.getElementById('atividade').value;
+  const periodo = document.getElementById('periodo').value;
+
+  const r = calcTributos(receita, outrasReceitas, pctIRPJ, pctCSLL);
+  const carga = (r.total / receita * 100);
+
+  document.getElementById('res-titulo').textContent = 'IRPJ / CSLL — Lucro Presumido';
+  document.getElementById('res-total').textContent = fmtMoeda(r.total);
+  document.getElementById('res-sub').textContent = `Receita: ${fmtMoeda(receita)} | Carga efetiva: ${fmtPct(carga)} | Presunção: ${pctIRPJ}% (IRPJ) / ${pctCSLL}% (CSLL)`;
+
+  document.getElementById('irpj-base').textContent = fmtMoeda(r.baseIRPJ);
+  document.getElementById('irpj-15').textContent = fmtMoeda(r.irpj15);
+  document.getElementById('irpj-adic').textContent = r.adicional > 0 ? fmtMoeda(r.adicional) : '—';
+  document.getElementById('irpj-total').textContent = fmtMoeda(r.irpjTotal);
+  document.getElementById('csll-base').textContent = fmtMoeda(r.baseCSLL);
+  document.getElementById('csll-9').textContent = fmtMoeda(r.csll9);
+  document.getElementById('csll-total').textContent = fmtMoeda(r.csll9);
+
+  document.getElementById('res-receita').textContent = fmtMoeda(receita);
+  document.getElementById('res-carga').textContent = fmtPct(carga);
+  document.getElementById('res-atividade').textContent = nomesAtividades[atividade];
+
+  // Composição
+  const lista = document.getElementById('comp-lista');
+  lista.innerHTML = '';
+  const addItem = (nome, valor, cls='', tot=false) => {
+    const div = document.createElement('div');
+    div.className = `comp-item${cls?' '+cls:''}${tot?' total':''}`;
+    div.innerHTML = `<span class="ci-nome">${nome}</span><span class="ci-valor" style="${cls==='roxo'?'color:#8B00FF':''}">${fmtMoeda(valor)}</span>`;
+    lista.appendChild(div);
+  };
+  addItem('Receita bruta trimestral', receita);
+  if (outrasReceitas > 0) addItem('Outras receitas', outrasReceitas);
+  addItem(`Base de cálculo IRPJ (${pctIRPJ}%)`, r.baseIRPJ, 'teal');
+  addItem('IRPJ — alíquota 15%', r.irpj15, 'teal');
+  if (r.adicional > 0) addItem('Adicional IRPJ 10% (excedente R$ 60k/trim.)', r.adicional, 'teal');
+  addItem(`Base de cálculo CSLL (${pctCSLL}%)`, r.baseCSLL, 'roxo');
+  addItem('CSLL — alíquota 9%', r.csll9, 'roxo');
+  addItem('TOTAL IRPJ + CSLL', r.total, '', true);
+
+  // Projeção anual
+  const tbody = document.getElementById('tabela-trim');
+  tbody.innerHTML = '';
+  let totalAnual = 0;
+  ['1º T', '2º T', '3º T', '4º T'].forEach((t, i) => {
+    const rt = calcTributos(receita, outrasReceitas, pctIRPJ, pctCSLL);
+    totalAnual += rt.total;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:#666">${t}</td>
+      <td>${fmtMoeda(receita)}</td>
+      <td>${fmtMoeda(rt.baseIRPJ)}</td>
+      <td style="color:#008080">${fmtMoeda(rt.irpjTotal)}</td>
+      <td style="color:#8B00FF">${fmtMoeda(rt.csll9)}</td>
+      <td class="dest">${fmtMoeda(rt.total)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const trT = document.createElement('tr');
+  trT.className = 'total-row';
+  trT.innerHTML = `<td colspan="2">TOTAL ANUAL</td><td>—</td><td>—</td><td>—</td><td class="dest">${fmtMoeda(totalAnual)}</td>`;
+  tbody.appendChild(trT);
+
+  document.getElementById('resultado').classList.add('visible');
+}
+
+// Init
+atualizarPresuncoes();
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { const f = document.activeElement; if (f && (f.tagName==='INPUT'||f.tagName==='SELECT')) calcular(); }
+});
+</script>
+</body>
+</html>
